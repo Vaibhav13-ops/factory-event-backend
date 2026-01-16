@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Event Monitoring Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-industry"></i>
+                <h1>Factory Monitor</h1>
+            </div>
+            <div class="header-stats">
+                <div class="stat-pill">
+                    <i class="fas fa-server"></i>
+                    <span id="serverStatus">Connected</span>
+                </div>
+                <div class="stat-pill">
+                    <i class="fas fa-clock"></i>
+                    <span id="currentTime">--:--:--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="nav">
+                <a href="#" class="nav-item active" data-view="overview">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-view="machines">
+                    <i class="fas fa-cogs"></i>
+                    <span>Machines</span>
+                </a>
+                <a href="#" class="nav-item" data-view="events">
+                    <i class="fas fa-list"></i>
+                    <span>Events</span>
+                </a>
+                <a href="#" class="nav-item" data-view="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-view="alerts">
+                    <i class="fas fa-bell"></i>
+                    <span>Alerts</span>
+                    <span class="badge" id="alertCount">0</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-secondary" id="simulateBtn">
+                    <i class="fas fa-play"></i>
+                    Simulate Events
+                </button>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Overview View -->
+            <div id="overviewView" class="view active">
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon blue">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Total Events</h3>
+                            <p class="kpi-value" id="totalEvents">0</p>
+                            <span class="kpi-change positive">
+                                <i class="fas fa-arrow-up"></i> Live
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Healthy Machines</h3>
+                            <p class="kpi-value" id="healthyMachines">0</p>
+                            <span class="kpi-change positive">
+                                <i class="fas fa-arrow-up"></i> +2 today
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon orange">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Total Defects</h3>
+                            <p class="kpi-value" id="totalDefects">0</p>
+                            <span class="kpi-change negative">
+                                <i class="fas fa-arrow-down"></i> -5% vs yesterday
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon purple">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Avg Defect Rate</h3>
+                            <p class="kpi-value" id="avgDefectRate">0.0</p>
+                            <span class="kpi-change positive">
+                                <i class="fas fa-arrow-down"></i> per hour
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>Machine Status</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon" title="Refresh">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="machineStatusChart" class="chart-container"></div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>Top Defect Lines</h3>
+                            <div class="card-actions">
+                                <select id="factoryFilter" class="select-small">
+                                    <option value="F01">Factory F01</option>
+                                    <option value="F02">Factory F02</option>
+                                    <option value="ALL">All Factories</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="topDefectLines" class="defect-lines-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Events -->
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3>Recent Events</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon" id="refreshEvents" title="Refresh">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentEvents" class="events-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Machines View -->
+            <div id="machinesView" class="view">
+                <div class="view-header">
+                    <h2>Machine Monitoring</h2>
+                    <div class="view-actions">
+                        <input type="text" placeholder="Search machines..." class="search-input" id="machineSearch">
+                        <button class="btn-primary" id="addMachineBtn">
+                            <i class="fas fa-plus"></i> Add Machine
+                        </button>
+                    </div>
+                </div>
+                <div id="machinesList" class="machines-grid"></div>
+            </div>
+
+            <!-- Events View -->
+            <div id="eventsView" class="view">
+                <div class="view-header">
+                    <h2>Event Management</h2>
+                    <div class="view-actions">
+                        <button class="btn-primary" id="ingestEventBtn">
+                            <i class="fas fa-upload"></i> Ingest Events
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Event Ingestion Form -->
+                <div class="chart-card" id="eventForm">
+                    <div class="card-header">
+                        <h3>Ingest New Events</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="eventIngestForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Event ID</label>
+                                    <input type="text" id="eventId" placeholder="E-001" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Machine ID</label>
+                                    <select id="machineId" required>
+                                        <option value="">Select Machine</option>
+                                        <option value="M-001">M-001</option>
+                                        <option value="M-002">M-002</option>
+                                        <option value="M-003">M-003</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Duration (ms)</label>
+                                    <input type="number" id="durationMs" placeholder="1000" min="0" max="21600000"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Defect Count</label>
+                                    <input type="number" id="defectCount" placeholder="0" min="-1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Line ID (Optional)</label>
+                                    <input type="text" id="lineId" placeholder="LINE-A">
+                                </div>
+                                <div class="form-group">
+                                    <label>Factory ID (Optional)</label>
+                                    <input type="text" id="factoryId" placeholder="F01">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Submit Event
+                                </button>
+                                <button type="button" class="btn-secondary" id="generateBatchBtn">
+                                    <i class="fas fa-random"></i> Generate Batch (100 events)
+                                </button>
+                            </div>
+                        </form>
+                        <div id="ingestResult" class="result-box"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analyticsView" class="view">
+                <div class="view-header">
+                    <h2>Analytics & Reports</h2>
+                </div>
+                <div class="analytics-grid">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>Query Statistics</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="statsQueryForm">
+                                <div class="form-group">
+                                    <label>Machine ID</label>
+                                    <select id="statsMachineId" required>
+                                        <option value="M-001">M-001</option>
+                                        <option value="M-002">M-002</option>
+                                        <option value="M-003">M-003</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Time Range</label>
+                                    <select id="timeRange">
+                                        <option value="1">Last 1 hour</option>
+                                        <option value="6">Last 6 hours</option>
+                                        <option value="24">Last 24 hours</option>
+                                        <option value="168">Last 7 days</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-search"></i> Query Stats
+                                </button>
+                            </form>
+                            <div id="statsResult" class="stats-result"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts View -->
+            <div id="alertsView" class="view">
+                <div class="view-header">
+                    <h2>System Alerts</h2>
+                </div>
+                <div id="alertsList" class="alerts-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
